@@ -4,23 +4,34 @@ import { Routes, Route, BrowserRouter, Navigate } from "react-router-dom";
 
 //pages
 import AuthPage from "./pages/AuthPage";
-import { useEffect, useState } from "react";
+import Appbar from "./components/Appbar";
+import ChatPage from "./pages/ChatPage";
+import { useAuthContext } from "./context/AuthContext";
 
 function App() {
-  const [token, setToken] = useState("");
-
-  useEffect(() => {
-    const tempToken = localStorage.getItem("token");
-  }, []);
+  const { authUser } = useAuthContext();
   return (
-    <div className="App">
-      
-      <BrowserRouter>
-        <Routes>
-          <Route exact path="/login" element={<AuthPage />} />
-          <Route exact path="/register" element={<AuthPage />} />
-        </Routes>
-      </BrowserRouter>
+    <div className="App min-h-screen max-w-screen">
+      <Appbar />
+
+      <Routes>
+        <Route
+          exact
+          path="/login"
+          element={authUser ? <Navigate to="/chat" /> : <AuthPage />}
+        />
+        <Route
+          exact
+          path="/register"
+          element={authUser ? <Navigate to="/chat" /> : <AuthPage />}
+        />
+        <Route
+          exact
+          path="/chat"
+          element={authUser ? <ChatPage /> : <Navigate to="/login" />}
+        />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
     </div>
   );
 }

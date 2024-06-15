@@ -1,53 +1,88 @@
-import { useState, useEffect } from 'react';
-import io from 'socket.io-client';
-import axios from 'axios';
-
-// const socket = io('http://localhost:5000');
+import { useState, useEffect } from "react";
+import { Button, Divider, IconButton, Stack, TextField } from "@mui/material";
+import MessageCard from "./MessageCard";
+import CallIcon from "@mui/icons-material/Call";
+import VideocamIcon from "@mui/icons-material/Videocam";
+import { useSocketContext } from "../context/SocketContext";
+import useConversation from "../zustand/useConversation";
+import { getMessages, sendMessage } from "../api/Messages";
+import { useAuthContext } from "../context/AuthContext";
 
 const Chat = () => {
-  const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
+  const { socket } = useSocketContext();
+  const {
+    selectedConversation,
+    messages,
+    addMessage,
+    setMessages,
+    removeMessage,
+  } = useConversation();
+  const { authUser } = useAuthContext();
 
-  // useEffect(() => {
-  //   socket.on('message', (message) => {
-  //     setMessages((prevMessages) => [...prevMessages, message]);
-  //   });
+  console.log({ selectedConversation });
+  const handleSendMessage = () => {
+    sendMessage(
+      selectedConversation,
+      { text: input },
+      authUser.token,
+      addMessage
+    );
+    setInput("");
+  };
 
-  //   socket.on('deleteMessage', (messageId) => {
-  //     setMessages((prevMessages) => prevMessages.filter((msg) => msg._id !== messageId));
-  //   });
-
-  //   return () => {
-  //     socket.off('message');
-  //     socket.off('deleteMessage');
-  //   };
-  // }, []);
-
-  const sendMessage = async () => {
-    const token = localStorage.getItem('token');
-    const res = await axios.post('/api/chat/message', { content: input }, {
-      headers: { Authorization: `Bearer ${token}` },
+  useEffect(() => {
+    socket?.on("message", (message) => {
+      console.log({ message });
+      addMessage(message);
     });
-    socket.emit('sendMessage', res.data.message);
-    setInput('');
-  };
+    socket?.on("deleteMessage", (messageId) => {
+      removeMessage(messageId);
+    });
+  }, [socket]);
 
-  const deleteMessage = (messageId) => {
-    socket.emit('deleteMessage', messageId);
-  };
+  useEffect(() => {
+    if (selectedConversation)
+      getMessages(selectedConversation, authUser.token, setMessages);
+    console.log({ messages });
+  }, [selectedConversation]);
 
   return (
-    <div>
-      <div>
+    <div className="w-[calc(100vw-255px)] h-[calc(100vh-57px)] absolute left-[255px]">
+      <div className="h-[calc(100%-70px)] w-full overflow-y-auto scroll-smooth block-end">
         {messages.map((message) => (
-          <div key={message._id}>
-            <p>{message.content}</p>
-            <button onClick={() => deleteMessage(message._id)}>Delete</button>
-          </div>
+          <MessageCard
+            key={message._id}
+            id={message._id}
+            message={message.text}
+            sender={message.sender}
+          />
         ))}
       </div>
-      <input value={input} onChange={(e) => setInput(e.target.value)} />
-      <button onClick={sendMessage}>Send</button>
+      <Divider />
+      <div className=" h-[68px] flex justify-center">
+        <Stack
+          direction={"row"}
+          gap={2}
+          alignItems={"center"}
+          justifyContent={"center"}
+        >
+          <IconButton>
+            <CallIcon />
+          </IconButton>
+          <IconButton>
+            <VideocamIcon />
+          </IconButton>
+          <TextField
+            className="w-[calc(50vw-120px)]"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+          />
+          <Button onClick={handleSendMessage} variant="contained">
+            Send
+          </Button>
+        </Stack>
+      </div>
     </div>
   );
 };
