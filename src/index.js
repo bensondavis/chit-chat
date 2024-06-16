@@ -1,3 +1,4 @@
+import * as process from "process";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
@@ -7,6 +8,10 @@ import { AuthContextProvider } from "./context/AuthContext";
 import { SocketContextProvider } from "./context/SocketContext";
 import { BrowserRouter } from "react-router-dom";
 import { SnackbarProvider } from "notistack";
+
+window.global = window;
+window.process = process;
+window.Buffer = [];
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(

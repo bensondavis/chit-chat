@@ -5,12 +5,12 @@ import { useAuthContext } from "../context/AuthContext";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { getContacts } from "../api/Contacts";
-
+import { Route, Routes } from "react-router-dom";
+import Welcome from "../components/Welcome";
 
 const ChatPage = () => {
   const [contacts, setContacts] = useState();
   const { authUser } = useAuthContext();
-  const API_URI = process.env.REACT_APP_API_URI;
 
   useEffect(() => {
     getContacts(authUser.token, setContacts);
@@ -19,7 +19,15 @@ const ChatPage = () => {
   return (
     <Box>
       <ContactList contacts={contacts} setContacts={setContacts} />
-      <Chat />
+      {/* <Chat /> */}
+    <div className="w-[calc(100vw-255px)] h-[calc(100vh-57px)] absolute left-[255px]">
+
+      <Routes>
+        <Route exact path="/:username" element={<Chat />} />
+        <Route exact path="/" element={<Welcome />} />
+      </Routes>
+    </div>
+
     </Box>
   );
 };

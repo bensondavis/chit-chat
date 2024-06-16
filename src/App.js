@@ -1,15 +1,20 @@
-import logo from "./logo.svg";
 import "./App.css";
-import { Routes, Route, BrowserRouter, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 //pages
 import AuthPage from "./pages/AuthPage";
 import Appbar from "./components/Appbar";
 import ChatPage from "./pages/ChatPage";
 import { useAuthContext } from "./context/AuthContext";
+import { useEffect } from "react";
 
 function App() {
   const { authUser } = useAuthContext();
+  useEffect(() => {
+    window.process = {
+      ...window.process,
+    };
+  }, []);
   return (
     <div className="App min-h-screen max-w-screen">
       <Appbar />
@@ -27,7 +32,7 @@ function App() {
         />
         <Route
           exact
-          path="/chat"
+          path="/chat/*"
           element={authUser ? <ChatPage /> : <Navigate to="/login" />}
         />
         <Route path="*" element={<Navigate to="/login" replace />} />

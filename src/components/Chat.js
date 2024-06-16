@@ -1,26 +1,26 @@
 import { useState, useEffect } from "react";
-import { Button, Divider, IconButton, Stack, TextField } from "@mui/material";
+import { Button, Divider, Stack, TextField } from "@mui/material";
 import MessageCard from "./MessageCard";
-import CallIcon from "@mui/icons-material/Call";
-import VideocamIcon from "@mui/icons-material/Videocam";
 import { useSocketContext } from "../context/SocketContext";
 import useConversation from "../zustand/useConversation";
 import { getMessages, sendMessage } from "../api/Messages";
 import { useAuthContext } from "../context/AuthContext";
+import { useParams } from "react-router-dom";
 
 const Chat = () => {
   const [input, setInput] = useState("");
   const { socket } = useSocketContext();
   const {
     selectedConversation,
+    setSelectedConversation,
     messages,
     addMessage,
     setMessages,
     removeMessage,
   } = useConversation();
   const { authUser } = useAuthContext();
+  const { username } = useParams();
 
-  console.log({ selectedConversation });
   const handleSendMessage = () => {
     sendMessage(
       selectedConversation,
@@ -33,7 +33,6 @@ const Chat = () => {
 
   useEffect(() => {
     socket?.on("message", (message) => {
-      console.log({ message });
       addMessage(message);
     });
     socket?.on("deleteMessage", (messageId) => {
@@ -44,11 +43,16 @@ const Chat = () => {
   useEffect(() => {
     if (selectedConversation)
       getMessages(selectedConversation, authUser.token, setMessages);
-    console.log({ messages });
   }, [selectedConversation]);
 
+  useEffect(() => {
+    if (username) {
+      setSelectedConversation(username);
+    }
+  }, [username]);
+
   return (
-    <div className="w-[calc(100vw-255px)] h-[calc(100vh-57px)] absolute left-[255px]">
+    <>
       <div className="h-[calc(100%-70px)] w-full overflow-y-auto scroll-smooth block-end">
         {messages.map((message) => (
           <MessageCard
@@ -67,12 +71,6 @@ const Chat = () => {
           alignItems={"center"}
           justifyContent={"center"}
         >
-          <IconButton>
-            <CallIcon />
-          </IconButton>
-          <IconButton>
-            <VideocamIcon />
-          </IconButton>
           <TextField
             className="w-[calc(50vw-120px)]"
             value={input}
@@ -83,7 +81,7 @@ const Chat = () => {
           </Button>
         </Stack>
       </div>
-    </div>
+    </>
   );
 };
 

@@ -15,9 +15,6 @@ const sendMessage = async (to, data, token, addMessage) => {
       addMessage(res.data);
     })
     .catch((err) => {
-      console.log(err);
-    })
-    .catch((err) => {
       if (err?.response.status === 401) {
         Toast("Cannot connect to server! Try logging in again.", "error", {
           vertical: "top",
