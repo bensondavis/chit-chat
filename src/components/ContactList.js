@@ -12,7 +12,7 @@ import { useAuthContext } from "../context/AuthContext";
 import "@fontsource/ibm-plex-mono";
 import useConversation from "../zustand/useConversation";
 import { useNavigate } from "react-router-dom";
-import CallFinal from "./CallFinal";
+import VoiceAndVideoCall from "./VoiceAndVideoCall";
 
 const ContactList = ({ contacts, setContacts }) => {
   const [userId, setUserId] = useState("");
@@ -41,9 +41,7 @@ const ContactList = ({ contacts, setContacts }) => {
             }}
           >
             <h3>{contact}</h3>
-            <CallFinal />
-            {/* <Call /> */}
-            {/* <VoiceAndVideoCall /> */}
+            <VoiceAndVideoCall />
           </div>
           <Divider />
         </Fragment>

@@ -2,6 +2,8 @@ import { createContext, useState, useEffect, useContext, useRef } from "react";
 import { useAuthContext } from "./AuthContext";
 import io from "socket.io-client";
 import Peer from "simple-peer";
+import useConversation from "../zustand/useConversation";
+import useCall from "../zustand/useCall";
 
 const SocketContext = createContext();
 
@@ -13,18 +15,29 @@ export const SocketContextProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const [callAccepted, setCallAccepted] = useState(false);
   const [callEnded, setCallEnded] = useState(false);
-  const [stream, setStream] = useState();
+  const [receivingCall, setReceivingCall] = useState(false);
+  // const [stream, setStream] = useState();
+  const [caller, setCaller] = useState("");
+  // const [callerSignal, setCallerSignal] = useState();
   const [name, setName] = useState("");
-  const [call, setCall] = useState({});
-  const [isVideoCall, setIsVideoCall] = useState(false);
+  // const [isVideoCall, setIsVideoCall] = useState(false);
   const { authUser } = useAuthContext();
+  const {
+    isVideoCall,
+    setIsVideoCall,
+    stream,
+    setStream,
+    callerSignal,
+    setCallerSignal,
+    setOpen
+  } = useCall();
 
   const myVideo = useRef();
   const myAudio = useRef();
   const userVideo = useRef();
   const userAudio = useRef();
   const connectionRef = useRef();
-  console.log({name, call, isVideoCall, callAccepted})
+
   useEffect(() => {
     if (authUser) {
       const skt = io(process.env.REACT_APP_SERVER_URI);
@@ -33,11 +46,22 @@ export const SocketContextProvider = ({ children }) => {
 
       skt.emit("registerSocket", authUser.username);
 
-      skt.on("callUser", ({ from, name, signal, isVideoCall }) => {
-        setCall({ isReceivingCall: true, from, name, signal, isVideoCall });
-        setIsVideoCall(isVideoCall);
-        setName(name);
-        console.log("useEffect callUser",{ call, isVideoCall });
+      skt.on("callUser", (data) => {
+        // setOpen(true);
+        setReceivingCall(true);
+        setCaller(data.from);
+        setName(data.name);
+        setCallerSignal(data.signal);
+        setIsVideoCall(data.isVideoCall);
+      });
+
+      skt.on("endCall", () => {
+        setReceivingCall(false);
+        setCaller();
+        setName("");
+        setCallerSignal(null);
+        setIsVideoCall(false);
+        setOpen(false);
       });
     } else {
       if (socket) {
@@ -47,33 +71,12 @@ export const SocketContextProvider = ({ children }) => {
     }
   }, [authUser]);
 
-  const answerCall = () => {
-    setCallAccepted(true);
-
-    const peer = new Peer({ initiator: false, trickle: false, stream });
-
-    peer.on("signal", (data) => {
-      socket.emit("answerCall", { signal: data, to: call.from });
-    });
-
-    peer.on("stream", (currentStream) => {
-      // if (call.isVideoCall) {
-        userVideo.current.srcObject = currentStream;
-      // } else {
-      //   userAudio.current.srcObject = currentStream;
-      // }
-    });
-  
-    peer.signal(call.signal);
-
-    connectionRef.current = peer;
-  };
-
   const callUser = (id, video) => {
-    setIsVideoCall(video);
-    console.log("CallUser Event", { video, isVideoCall });
-    const peer = new Peer({ initiator: true, trickle: false, stream });
-
+    const peer = new Peer({
+      initiator: true,
+      trickle: false,
+      stream: stream,
+    });
     peer.on("signal", (data) => {
       socket.emit("callUser", {
         userToCall: id,
@@ -84,28 +87,62 @@ export const SocketContextProvider = ({ children }) => {
       });
     });
 
-    peer.on("stream", (currentStream) => {
-      // if (video) {
-        userVideo.current.srcObject = currentStream;
-      // } else {
-      //   userAudio.current.srcObject = currentStream;
-      // }
+    peer.on("stream", (stream) => {
+      userVideo.current.srcObject = stream;
     });
 
-    socket.on("callAccepted", (signal) => {
+    peer.on("error", () => {
+      peer.destroy();
+    });
+
+    socket?.on("callAccepted", (signal) => {
       setCallAccepted(true);
-
-      peer.signal(signal);
+      peer?.signal(signal);
     });
+
+    peer.on('close', () => {
+      leaveCall();
+    })
+
+    connectionRef.current = peer;
+  };
+
+  const answerCall = () => {
+    setCallAccepted(true);
+
+    const peer = new Peer({
+      initiator: false,
+      trickle: false,
+      stream: stream,
+    });
+
+    peer?.on("signal", (data) => {
+      socket.emit("answerCall", { signal: data, to: caller });
+    });
+
+    peer?.on("stream", (stream) => {
+      userVideo.current.srcObject = stream;
+    });
+
+    peer.on('close', () => {
+      leaveCall();
+    })
+
+    peer.on("error", () => {
+      peer.destroy();
+      leaveCall();
+    });
+
+    peer.signal(callerSignal);
 
     connectionRef.current = peer;
   };
 
   const leaveCall = () => {
-    setCallEnded(true);
-
-    connectionRef.current.destroy();
-
+    socket.emit("endCall", { to: caller });
+    setOpen(false);
+    if (connectionRef.current) connectionRef.current.destroy();
+    else connectionRef = null;
     window.location.reload();
   };
 
@@ -113,20 +150,19 @@ export const SocketContextProvider = ({ children }) => {
     <SocketContext.Provider
       value={{
         socket,
-        call,
         callAccepted,
         myVideo,
-        myAudio,
         userVideo,
-        userAudio,
-        stream,
         name,
         callEnded,
         isVideoCall,
-        setStream,
+        receivingCall,
+        // setStream,
         callUser,
-        leaveCall,
         answerCall,
+        leaveCall,
+        setIsVideoCall,
+        // getMediaDevices,
       }}
     >
       {children}
