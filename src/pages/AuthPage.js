@@ -1,20 +1,17 @@
 import { Box, Button, Stack, TextField } from "@mui/material";
 import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
+import { Link, useLocation } from "react-router-dom";
 import { useAuthContext } from "../context/AuthContext";
 import { Login, Register } from "../api/Auth";
 
-const AuthPage = ({ setUsername }) => {
+const AuthPage = () => {
   const [email, setEmail] = useState("");
   const [username, setUserName] = useState("");
   const [password, setPassword] = useState("");
-  const { authUser, setAuthUser } = useAuthContext();
+  const { setAuthUser } = useAuthContext();
   const location = useLocation();
-  const navigate = useNavigate();
 
   const isLogin = location.pathname === "/login";
-  const API_URI = process.env.REACT_APP_API_URI;
 
   const handleClick = async () => {
     const data = !isLogin ? { username, email, password } : { email, password };

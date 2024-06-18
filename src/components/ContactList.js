@@ -11,14 +11,11 @@ import { addContact } from "../api/Contacts";
 import { useAuthContext } from "../context/AuthContext";
 import "@fontsource/ibm-plex-mono";
 import useConversation from "../zustand/useConversation";
-import CallIcon from "@mui/icons-material/Call";
-import VideocamIcon from "@mui/icons-material/Videocam";
 import { useNavigate } from "react-router-dom";
-import CallDialog from "./Dialog";
+import CallFinal from "./CallFinal";
 
 const ContactList = ({ contacts, setContacts }) => {
   const [userId, setUserId] = useState("");
-  const [call, setCall] = useState(false);
   const { authUser } = useAuthContext();
   const { selectedConversation, setSelectedConversation } = useConversation();
   const navigate = useNavigate();
@@ -27,20 +24,12 @@ const ContactList = ({ contacts, setContacts }) => {
     addContact(userId, authUser.token, setContacts);
   };
 
-  const handleCall = () => {
-    setCall(!call);
-  }
-
-  const handleClose = () => {
-    setCall(false);
-  }
-
   return (
     <section className="w-64 h-[calc(100vh-57px)] absolute top-[57px] left-0 border-r border-gray-500">
       {contacts?.map((contact, index) => (
         <Fragment key={index}>
           <div
-            className="p-4 uppercase text-left cursor-pointer hover:bg-gray-50 active:bg-gray-100 relative"
+            className="p-4 uppercase text-left cursor-pointer hover:bg-gray-50 active:bg-gray-100 relative z-0"
             style={{
               fontFamily: "IBM Plex Mono",
               backgroundColor:
@@ -52,14 +41,9 @@ const ContactList = ({ contacts, setContacts }) => {
             }}
           >
             <h3>{contact}</h3>
-            <div className="absolute top-2 right-2">
-              <IconButton onClick={handleCall}>
-                <CallIcon />
-              </IconButton>
-              <IconButton>
-                <VideocamIcon />
-              </IconButton>
-            </div>
+            <CallFinal />
+            {/* <Call /> */}
+            {/* <VoiceAndVideoCall /> */}
           </div>
           <Divider />
         </Fragment>
@@ -80,8 +64,6 @@ const ContactList = ({ contacts, setContacts }) => {
           }
         />
       </Box>
-
-      <CallDialog open={call} onClose={handleClose} />
     </section>
   );
 };
