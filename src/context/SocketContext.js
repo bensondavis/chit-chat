@@ -35,7 +35,6 @@ export const SocketContextProvider = ({ children }) => {
 
   useEffect(() => {
     if (authUser) {
-      console.log(process.env.REACT_APP_SERVER_URI);
       const skt = io(process.env.REACT_APP_SERVER_URI);
 
       setSocket(skt);
