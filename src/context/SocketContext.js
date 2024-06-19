@@ -14,13 +14,9 @@ export const useSocketContext = () => {
 export const SocketContextProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const [callAccepted, setCallAccepted] = useState(false);
-  const [callEnded, setCallEnded] = useState(false);
   const [receivingCall, setReceivingCall] = useState(false);
-  // const [stream, setStream] = useState();
   const [caller, setCaller] = useState("");
-  // const [callerSignal, setCallerSignal] = useState();
   const [name, setName] = useState("");
-  // const [isVideoCall, setIsVideoCall] = useState(false);
   const { authUser } = useAuthContext();
   const { addContact } = useConversation();
   const {
@@ -34,13 +30,12 @@ export const SocketContextProvider = ({ children }) => {
   } = useCall();
 
   const myVideo = useRef();
-  const myAudio = useRef();
   const userVideo = useRef();
-  const userAudio = useRef();
   const connectionRef = useRef();
 
   useEffect(() => {
     if (authUser) {
+      console.log(process.env.REACT_APP_SERVER_URI);
       const skt = io(process.env.REACT_APP_SERVER_URI);
 
       setSocket(skt);
@@ -68,7 +63,7 @@ export const SocketContextProvider = ({ children }) => {
       skt.on("newContact", (data) => {
         addContact(data);
       });
-      
+
     } else {
       if (socket) {
         socket.close();
@@ -160,15 +155,12 @@ export const SocketContextProvider = ({ children }) => {
         myVideo,
         userVideo,
         name,
-        callEnded,
         isVideoCall,
         receivingCall,
-        // setStream,
         callUser,
         answerCall,
         leaveCall,
         setIsVideoCall,
-        // getMediaDevices,
       }}
     >
       {children}

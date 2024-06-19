@@ -7,21 +7,23 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { Fragment, useState } from "react";
-import { addContact } from "../api/Contacts";
+import { addContact as addContactApi } from "../api/Contacts";
 import { useAuthContext } from "../context/AuthContext";
 import "@fontsource/ibm-plex-mono";
 import useConversation from "../zustand/useConversation";
 import { useNavigate } from "react-router-dom";
 import VoiceAndVideoCall from "./VoiceAndVideoCall";
 
-const ContactList = ({ contacts, setContacts }) => {
+const ContactList = () => {
+  const { contacts, addContact } = useConversation();
   const [userId, setUserId] = useState("");
   const { authUser } = useAuthContext();
   const { selectedConversation, setSelectedConversation } = useConversation();
   const navigate = useNavigate();
 
   const handleAddContact = () => {
-    addContact(userId, authUser.token, setContacts);
+    addContactApi(userId, authUser.token, addContact);
+    setUserId("");
   };
 
   return (
@@ -51,6 +53,9 @@ const ContactList = ({ contacts, setContacts }) => {
         <OutlinedInput
           value={userId}
           onChange={(e) => setUserId(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleAddContact();
+          }}
           className="text-gray-500"
           placeholder="Search users"
           endAdornment={

@@ -16,7 +16,6 @@ import useConversation from "../zustand/useConversation";
 import useCall from "../zustand/useCall";
 
 const VoiceAndVideoCall = () => {
-  //   const [open, setOpen] = useState(false);
   const {
     name,
     callAccepted,
@@ -24,11 +23,9 @@ const VoiceAndVideoCall = () => {
     myVideo,
     userVideo,
     isVideoCall,
-    callEnded,
     callUser,
     leaveCall,
     setIsVideoCall,
-    getMediaDevices,
     answerCall,
   } = useSocketContext();
   const { selectedConversation } = useConversation();
@@ -36,8 +33,6 @@ const VoiceAndVideoCall = () => {
 
   useEffect(() => {
     if (open) {
-      //navigator
-      //   getMediaDevices();
       navigator.mediaDevices
         .getUserMedia({ video: isVideoCall, audio: true })
         .then((stream) => {
@@ -78,11 +73,14 @@ const VoiceAndVideoCall = () => {
         </IconButton>
       </div>
       <Dialog open={open}>
-        <DialogTitle>
-          {receivingCall
-            ? `${name} is calling...`
-            : `Calling ${selectedConversation}`}
-        </DialogTitle>
+        {!callAccepted ? (
+          <DialogTitle>
+            {receivingCall
+              ? `${name} is calling...`
+              : `Calling ${selectedConversation}`}
+          </DialogTitle>
+        ) : null}
+
         <DialogContent>
           <Stack direction={"column"}>
             {callAccepted ? (

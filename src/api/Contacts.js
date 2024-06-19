@@ -3,7 +3,7 @@ import Toast from "../components/Toast";
 
 const API_URI = process.env.REACT_APP_API_URI;
 
-const addContact = (id, token, setContacts) => {
+const addContact = (id, token, addNewContact) => {
   axios({
     method: "post",
     url: `${API_URI}/contacts/${id}`,
@@ -12,7 +12,7 @@ const addContact = (id, token, setContacts) => {
     },
   })
     .then(() => {
-      setContacts((prevContacts) => [...prevContacts, id]);
+      addNewContact(id);
     })
     .catch((err) => {
       if (err?.response.status === 401) {

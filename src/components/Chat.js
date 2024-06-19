@@ -75,6 +75,7 @@ const Chat = () => {
             className="w-[calc(50vw-120px)]"
             value={input}
             onChange={(e) => setInput(e.target.value)}
+            
           />
           <Button onClick={handleSendMessage} variant="contained">
             Send
