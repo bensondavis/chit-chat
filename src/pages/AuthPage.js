@@ -14,7 +14,13 @@ const AuthPage = () => {
   const isLogin = location.pathname === "/login";
 
   const handleClick = async () => {
-    const data = !isLogin ? { username, email, password } : { email, password };
+    const data = !isLogin
+      ? {
+          username: username.toLowerCase(),
+          email: email.toLowerCase(),
+          password: password.toLowerCase(),
+        }
+      : { email: email.toLowerCase(), password: password.toLowerCase() };
     setEmail("");
     setUserName("");
     setPassword("");
@@ -54,6 +60,9 @@ const AuthPage = () => {
             value={password}
             onChange={(e) => {
               setPassword(e.target.value);
+            }}
+            onKeyDown={(e) => {
+              if(e.key === "Enter") handleClick();
             }}
           />
           <Button

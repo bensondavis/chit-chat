@@ -22,6 +22,7 @@ export const SocketContextProvider = ({ children }) => {
   const [name, setName] = useState("");
   // const [isVideoCall, setIsVideoCall] = useState(false);
   const { authUser } = useAuthContext();
+  const { addContact } = useConversation();
   const {
     isVideoCall,
     setIsVideoCall,
@@ -29,7 +30,7 @@ export const SocketContextProvider = ({ children }) => {
     setStream,
     callerSignal,
     setCallerSignal,
-    setOpen
+    setOpen,
   } = useCall();
 
   const myVideo = useRef();
@@ -63,6 +64,11 @@ export const SocketContextProvider = ({ children }) => {
         setIsVideoCall(false);
         setOpen(false);
       });
+
+      skt.on("newContact", (data) => {
+        addContact(data);
+      });
+      
     } else {
       if (socket) {
         socket.close();
@@ -100,9 +106,9 @@ export const SocketContextProvider = ({ children }) => {
       peer?.signal(signal);
     });
 
-    peer.on('close', () => {
+    peer.on("close", () => {
       leaveCall();
-    })
+    });
 
     connectionRef.current = peer;
   };
@@ -124,9 +130,9 @@ export const SocketContextProvider = ({ children }) => {
       userVideo.current.srcObject = stream;
     });
 
-    peer.on('close', () => {
+    peer.on("close", () => {
       leaveCall();
-    })
+    });
 
     peer.on("error", () => {
       peer.destroy();
