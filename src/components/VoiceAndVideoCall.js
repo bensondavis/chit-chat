@@ -14,6 +14,7 @@ import VideocamIcon from "@mui/icons-material/Videocam";
 import { useEffect, useState } from "react";
 import useConversation from "../zustand/useConversation";
 import useCall from "../zustand/useCall";
+import { useAuthContext } from "../context/AuthContext";
 
 const VoiceAndVideoCall = () => {
   const {
@@ -29,6 +30,7 @@ const VoiceAndVideoCall = () => {
     answerCall,
   } = useSocketContext();
   const { selectedConversation } = useConversation();
+  const {authUser} = useAuthContext();
   const { stream, setStream, open, setOpen } = useCall();
 
   useEffect(() => {
@@ -73,13 +75,15 @@ const VoiceAndVideoCall = () => {
         </IconButton>
       </div>
       <Dialog open={open}>
-        {!callAccepted ? (
-          <DialogTitle>
-            {receivingCall
-              ? `${name} is calling...`
-              : `Calling ${selectedConversation}`}
-          </DialogTitle>
-        ) : null}
+        <DialogTitle>
+          {!callAccepted ? (
+            <>
+              {receivingCall
+                ? `${name} is calling...`
+                : `Calling ${selectedConversation}`}
+            </>
+          ) : null}
+        </DialogTitle>
 
         <DialogContent>
           <Stack direction={"column"}>
@@ -94,7 +98,7 @@ const VoiceAndVideoCall = () => {
                     height: `${!isVideoCall ? "0px" : "300px"}`,
                   }}
                 />
-                <p>user video</p>
+                <p>{name}</p>
               </>
             ) : null}
 
@@ -108,7 +112,7 @@ const VoiceAndVideoCall = () => {
                 height: `${!isVideoCall ? "0px" : "300px"}`,
               }}
             />
-            <p>my video</p>
+            <p>{authUser.username}</p>
           </Stack>
         </DialogContent>
 
