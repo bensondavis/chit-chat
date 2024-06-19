@@ -1,70 +1,150 @@
-# Getting Started with Create React App
+# chit-chat
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is a chat application built using React, Node.js, and MongoDB. The application supports text messaging, voice calls, and video calls between users.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- Text messaging
+- Voice calls
+- Video calls
+- Message deletion within 2 minutes of sending
 
-### `npm start`
+## Technologies Used
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- **Frontend:** React, Socket.io-client, Zustand, Tailwind-css, MUI
+- **Backend:** Node.js, Express, Socket.io, MongoDB, Mongoose
+- **WebRTC:** Simple-peer for peer-to-peer connections
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Getting Started
 
-### `npm test`
+### Prerequisites
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- Node.js and npm installed on your machine
+- MongoDB installed and running
 
-### `npm run build`
+### Installation
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+1. **Clone this repository and Install client dependencies:**
+    ```sh
+    git clone https://github.com/bensondavis/chit-chat.git
+    cd chit-chat
+    npm install
+    ```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+2. **Clone the server repository and Install server dependencies:**
+    ```sh
+    git clone https://github.com/bensondavis/chit-chat-server.git
+    cd chit-chat-server
+    npm install
+    ```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+3. **Start the MongoDB server:**
+    Make sure your MongoDB server is running on the default port (27017).
 
-### `npm run eject`
+4. **Run the server:**
+    ```sh
+    cd ../chit-chat-server
+    npm run start:dev
+    ```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+5. **Run the client:**
+    ```sh
+    cd ../chit-chat
+    npm start
+    ```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Configuration
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+You can configure the server and client settings using environment variables.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+- **Server (chit-chat-server/.env):**
+    ```
+    PORT=5000
+    MONGODB_URL=mongodb://0.0.0.0:27017/yourDb
+    JWT_SECRET=yourPassword
+    JWT_TOKEN_EXPIRY=1h
+    ```
+- **Server (chit-chat-server/socket/socket.js)**
+    ```
+    const io = new Server(server, {
+        cors: {
+            origin: "your client address",
+            methods: ["GET", "POST", "DELETE"],
+        },
+    });
+    ```
 
-## Learn More
+- **Client (chit-chat/.env):**
+    ```
+    REACT_APP_API_URI=http://localhost:5000/api
+    REACT_APP_SERVER_URI=http://localhost:5000
+    ```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Usage
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+1. **Open the application:**
+    Open your browser and navigate to `http://localhost:3000`
 
-### Code Splitting
+2. **Create an account or log in:**
+    Enter your email/username/password to join the app.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+3. **Add user to contact list:** 
+    Enter the username of the user to need to the text message to.
 
-### Analyzing the Bundle Size
+4. **Send messages:**
+    Select a user from the contact list and start chatting.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+5. **Make voice or video calls:**
+    Click on the "Voice Call" or "Video Call" button next to a user's name to start a call.
 
-### Making a Progressive Web App
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## Socket Events
 
-### Advanced Configuration
+- **sendMessage**
+    - Sends a message to the specified user.
+    - Data:
+      ```json
+      {
+        "from": "me",
+        "to": "user2",
+        "message": "Hello!"
+      }
+      ```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+- **callUser**
+    - Initiates a call to the specified user.
+    - Data:
+      ```json
+      {
+        "userToCall": "user2",
+        "signalData": "signal-data",
+        "from": "me",
+        "isVideoCall": true
+      }
+      ```
 
-### Deployment
+- **answerCall**
+    - Answers an incoming call.
+    - Data:
+      ```json
+      {
+        "signal": "signal-data",
+        "to": "caller"
+      }
+      ```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+- **endCall**
+    - Ends the current call.
+    - Data:
+      ```json
+      {
+        "to": "user2"
+      }
+      ```
 
-### `npm run build` fails to minify
+## Acknowledgments
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- This project uses [Simple-peer](https://github.com/feross/simple-peer) for WebRTC implementation.
+- Inspired by various chat application tutorials and examples.
+
+---
