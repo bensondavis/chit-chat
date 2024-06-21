@@ -42,6 +42,7 @@ export const SocketContextProvider = ({ children }) => {
       skt.emit("registerSocket", authUser.username);
 
       skt.on("callUser", (data) => {
+        console.log({ data });
         // setOpen(true);
         setReceivingCall(true);
         setCaller(data.from);
@@ -62,7 +63,6 @@ export const SocketContextProvider = ({ children }) => {
       skt.on("newContact", (data) => {
         addContact(data);
       });
-
     } else {
       if (socket) {
         socket.close();
@@ -72,12 +72,14 @@ export const SocketContextProvider = ({ children }) => {
   }, [authUser]);
 
   const callUser = (id, video) => {
+    console.log("call USer", { stream });
     const peer = new Peer({
       initiator: true,
       trickle: false,
       stream: stream,
     });
     peer.on("signal", (data) => {
+      console.log("call user on signal", { data });
       socket.emit("callUser", {
         userToCall: id,
         signalData: data,
@@ -88,6 +90,7 @@ export const SocketContextProvider = ({ children }) => {
     });
 
     peer.on("stream", (stream) => {
+      console.log("on stream", { stream });
       userVideo.current.srcObject = stream;
     });
 
@@ -96,6 +99,7 @@ export const SocketContextProvider = ({ children }) => {
     });
 
     socket?.on("callAccepted", (signal) => {
+      console.log("on call accepted", { signal });
       setCallAccepted(true);
       peer?.signal(signal);
     });
@@ -109,7 +113,7 @@ export const SocketContextProvider = ({ children }) => {
 
   const answerCall = () => {
     setCallAccepted(true);
-
+    console.log("answecall", { stream });
     const peer = new Peer({
       initiator: false,
       trickle: false,
@@ -117,10 +121,12 @@ export const SocketContextProvider = ({ children }) => {
     });
 
     peer?.on("signal", (data) => {
+      console.log("answer call signal", { data, caller });
       socket.emit("answerCall", { signal: data, to: caller });
     });
 
     peer?.on("stream", (stream) => {
+      console.log("answer call stream", { stream });
       userVideo.current.srcObject = stream;
     });
 
