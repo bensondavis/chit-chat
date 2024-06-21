@@ -33,6 +33,29 @@ export const SocketContextProvider = ({ children }) => {
   const userVideo = useRef();
   const connectionRef = useRef();
 
+  const iceServers = [
+    { urls: "stun:stun.l.google.com:19302" },
+    { urls: "stun:stun1.l.google.com:19302" },
+    { urls: "stun:stun2.l.google.com:19302" },
+    { urls: "stun:stun3.l.google.com:19302" },
+    { urls: "stun:stun4.l.google.com:19302" },
+    {
+      url: "turn:numb.viagenie.ca",
+      credential: "muazkh",
+      username: "webrtc@live.com",
+    },
+    {
+      url: "turn:turn.bistri.com:80",
+      credential: "homeo",
+      username: "homeo",
+    },
+    {
+      url: "turn:turn.anyfirewall.com:443?transport=tcp",
+      credential: "webrtc",
+      username: "webrtc",
+    },
+  ];
+
   useEffect(() => {
     if (authUser) {
       const skt = io(process.env.REACT_APP_SERVER_URI);
@@ -78,28 +101,7 @@ export const SocketContextProvider = ({ children }) => {
       trickle: false,
       stream: stream,
       config: {
-        iceServers: [
-          { urls: "stun:stun.l.google.com:19302" },
-          { urls: "stun:stun1.l.google.com:19302" },
-          { urls: "stun:stun2.l.google.com:19302" },
-          { urls: "stun:stun3.l.google.com:19302" },
-          { urls: "stun:stun4.l.google.com:19302" },
-          {
-            url: "turn:numb.viagenie.ca",
-            credential: "muazkh",
-            username: "webrtc@live.com",
-          },
-          {
-            url: "turn:turn.bistri.com:80",
-            credential: "homeo",
-            username: "homeo",
-          },
-          {
-            url: "turn:turn.anyfirewall.com:443?transport=tcp",
-            credential: "webrtc",
-            username: "webrtc",
-          },
-        ],
+        iceServers: iceServers,
       },
     });
     peer.on("signal", (data) => {
@@ -142,6 +144,9 @@ export const SocketContextProvider = ({ children }) => {
       initiator: false,
       trickle: false,
       stream: stream,
+      config: {
+        iceServers: iceServers,
+      },
     });
 
     peer?.on("signal", (data) => {
@@ -155,13 +160,13 @@ export const SocketContextProvider = ({ children }) => {
     });
 
     peer.on("close", () => {
-      // leaveCall();
+      leaveCall();
     });
 
     peer.on("error", (err) => {
       console.log({ err });
       peer.destroy();
-      // leaveCall();
+      leaveCall();
     });
 
     peer.signal(callerSignal);
@@ -174,7 +179,7 @@ export const SocketContextProvider = ({ children }) => {
     setOpen(false);
     if (connectionRef.current) connectionRef.current.destroy();
     else connectionRef = null;
-    // window.location.reload();
+    window.location.reload();
   };
 
   return (
