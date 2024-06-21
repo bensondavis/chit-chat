@@ -34,6 +34,7 @@ export const SocketContextProvider = ({ children }) => {
   const connectionRef = useRef();
 
   const iceServers = [
+    { urls: 'stun:stun.l.google.com:19302' },
     {
       url: "turn:192.158.29.39:3478?transport=udp",
       credential: "JZEOEt2V3Qb0y27GRntt2u2PAYA=",
@@ -102,9 +103,11 @@ export const SocketContextProvider = ({ children }) => {
       stream: stream,
       config: {
         iceServers: iceServers,
+        iceTransportPolicy: "relay"
       },
     });
     peer.on("signal", (data) => {
+      if (peer.destroyed) return;
       console.log("call user on signal", { data });
       socket.emit("callUser", {
         userToCall: id,
@@ -146,6 +149,7 @@ export const SocketContextProvider = ({ children }) => {
       stream: stream,
       config: {
         iceServers: iceServers,
+        iceTransportPolicy: "relay"
       },
     });
 
