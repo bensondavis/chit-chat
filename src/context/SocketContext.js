@@ -134,7 +134,8 @@ export const SocketContextProvider = ({ children }) => {
       leaveCall();
     });
 
-    peer.on("error", () => {
+    peer.on("error", (err) => {
+      console.log({err});
       peer.destroy();
       leaveCall();
     });
