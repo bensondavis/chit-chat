@@ -34,26 +34,28 @@ export const SocketContextProvider = ({ children }) => {
   const connectionRef = useRef();
 
   const iceServers = [
-    { urls: 'stun:stun.l.google.com:19302' },
     {
-      url: "turn:192.158.29.39:3478?transport=udp",
-      credential: "JZEOEt2V3Qb0y27GRntt2u2PAYA=",
-      username: "28224511:1379330808",
+      urls: "stun:stun.relay.metered.ca:80",
     },
     {
-      url: "turn:192.158.29.39:3478?transport=tcp",
-      credential: "JZEOEt2V3Qb0y27GRntt2u2PAYA=",
-      username: "28224511:1379330808",
+      urls: "turn:in.relay.metered.ca:80",
+      username: "86c86937bb74240e82c7ee7d",
+      credential: "ZEKthT6qmnL4YatD",
     },
     {
-      url: "turn:turn.bistri.com:80",
-      credential: "homeo",
-      username: "homeo",
+      urls: "turn:in.relay.metered.ca:80?transport=tcp",
+      username: "86c86937bb74240e82c7ee7d",
+      credential: "ZEKthT6qmnL4YatD",
     },
     {
-      url: "turn:turn.anyfirewall.com:443?transport=tcp",
-      credential: "webrtc",
-      username: "webrtc",
+      urls: "turn:in.relay.metered.ca:443",
+      username: "86c86937bb74240e82c7ee7d",
+      credential: "ZEKthT6qmnL4YatD",
+    },
+    {
+      urls: "turns:in.relay.metered.ca:443?transport=tcp",
+      username: "86c86937bb74240e82c7ee7d",
+      credential: "ZEKthT6qmnL4YatD",
     },
   ];
 
@@ -103,7 +105,6 @@ export const SocketContextProvider = ({ children }) => {
       stream: stream,
       config: {
         iceServers: iceServers,
-        iceTransportPolicy: "relay"
       },
     });
     peer.on("signal", (data) => {
@@ -149,7 +150,6 @@ export const SocketContextProvider = ({ children }) => {
       stream: stream,
       config: {
         iceServers: iceServers,
-        iceTransportPolicy: "relay"
       },
     });
 
