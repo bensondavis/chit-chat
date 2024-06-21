@@ -77,6 +77,15 @@ export const SocketContextProvider = ({ children }) => {
       initiator: true,
       trickle: false,
       stream: stream,
+      config: {
+        iceServers: [
+          { urls: "stun:stun.l.google.com:19302" },
+          { urls: "stun:stun1.l.google.com:19302" },
+          { urls: "stun:stun2.l.google.com:19302" },
+          { urls: "stun:stun3.l.google.com:19302" },
+          { urls: "stun:stun4.l.google.com:19302" },
+        ],
+      },
     });
     peer.on("signal", (data) => {
       console.log("call user on signal", { data });
@@ -135,7 +144,7 @@ export const SocketContextProvider = ({ children }) => {
     });
 
     peer.on("error", (err) => {
-      console.log({err});
+      console.log({ err });
       peer.destroy();
       // leaveCall();
     });
