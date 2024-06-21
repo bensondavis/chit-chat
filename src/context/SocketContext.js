@@ -131,7 +131,7 @@ export const SocketContextProvider = ({ children }) => {
     });
 
     peer.on("close", () => {
-      leaveCall();
+      // leaveCall();
     });
 
     peer.on("error", (err) => {
@@ -150,7 +150,7 @@ export const SocketContextProvider = ({ children }) => {
     setOpen(false);
     if (connectionRef.current) connectionRef.current.destroy();
     else connectionRef = null;
-    window.location.reload();
+    // window.location.reload();
   };
 
   return (
